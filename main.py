@@ -21,7 +21,7 @@ class Cell:
         if gridActivated:
             pygame.draw.line(
                 screen, (100, 100, 100), (self.x, self.y),
-                (self.x + self.size, self.y))
+                (self.x + self.size - 1, self.y))
             pygame.draw.line(
                 screen, (100, 100, 100), (self.x, self.y),
                 (self.x, self.y + self.size - 1))
@@ -55,7 +55,7 @@ class Main:
 
     def createGrid(self):
         # Calculate rows, and cols amount depending on the cell size
-        cellSize = 34
+        cellSize = 43
         info = pygame.display.Info()
         winX, winY = info.current_w, info.current_h
         rows, cols = int(winY / cellSize), int(winX / cellSize)
@@ -165,12 +165,14 @@ class Main:
 
             xStart, yStart = self.grid[-1][0].x, self.grid[-1][0].y + cellSize
             pygame.draw.line(
-                self.screen, (100, 100, 100), (xStart, yStart - 1), (xEnd, yEnd - 1)
+                self.screen, (100, 100, 100), (xStart, yStart - 1),
+                (xEnd - 1, yEnd - 1)
             )
 
             xStart, yStart = self.grid[0][-1].x + cellSize, self.grid[0][-1].y
             pygame.draw.line(
-                self.screen, (100, 100, 100), (xStart, yStart), (xEnd, yEnd - 1)
+                self.screen, (100, 100, 100), (xStart - 1, yStart),
+                (xEnd - 1, yEnd - 1)
             )
 
     def mainloop(self):
