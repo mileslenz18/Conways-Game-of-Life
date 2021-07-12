@@ -1,4 +1,5 @@
 import random
+import sys
 import pygame
 
 
@@ -17,7 +18,7 @@ class Cell:
 
     def getColor(self):
         if self.status:
-            return (100, 200, 100)
+            return (100, 100, 220)
         return (15, 15, 15)
 
     def changeStatus(self):
@@ -29,10 +30,12 @@ def eventHandler():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            sys.exit()
         if event.type == pygame.KEYDOWN:
             mo = pygame.key.get_mods()
             if event.key == pygame.K_c and mo & event.key == pygame.KMOD_LCTRL:
                 pygame.quit()
+                sys.exit()
 
 
 def draw(screen, grid):
