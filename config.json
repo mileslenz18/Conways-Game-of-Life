@@ -1,5 +1,5 @@
 {
-    "cell-size": "37",
+    "cell-size": "30",
     "cell-color-alive": "100, 200, 100",
     "cell-color-dead": "20, 20, 20",
     "bg-color": "10, 10, 10"
