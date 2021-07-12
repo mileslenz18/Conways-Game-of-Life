@@ -1,5 +1,4 @@
 import random
-import time
 import pygame
 
 
@@ -26,7 +25,7 @@ class Cell:
         self.color = self.getColor()
 
 
-def eventHandler(animationSpeed):
+def eventHandler():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -34,13 +33,6 @@ def eventHandler(animationSpeed):
             mo = pygame.key.get_mods()
             if event.key == pygame.K_c and mo & event.key == pygame.KMOD_LCTRL:
                 pygame.quit()
-
-            if event.key == pygame.K_KP_PLUS:
-                if animationSpeed > 0:
-                    animationSpeed -= 0.02
-            elif event.key == pygame.K_KP_MINUS:
-                animationSpeed += 0.02
-    return animationSpeed
 
 
 def draw(screen, grid):
@@ -120,13 +112,11 @@ def main():
 
     # Create some important variables
     cellSize = 15
-    animationSpeed = 0
     info = pygame.display.Info()
     winX, winY = info.current_w, info.current_h
     rows, cols = calculateCellAmount(winX, winY, cellSize)
     marginY = (winY - rows*cellSize) / 2
     marginX = (winX - cols*cellSize) / 2
-    timerStart = time.time()
 
     # Create the grid and the cells
     grid = []
@@ -142,12 +132,10 @@ def main():
 
     # Main window loop
     while True:
-        animationSpeed = eventHandler(animationSpeed)
+        eventHandler()
         draw(screen, grid)
 
-        if (time.time() - timerStart > animationSpeed):
-            grid = update(grid)
-            timerStart = time.time()
+        grid = update(grid)
 
         pygame.display.flip()
         clock.tick(60)
