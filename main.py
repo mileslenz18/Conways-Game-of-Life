@@ -1,11 +1,10 @@
 import sys
-import random
 import pygame
 
 
 class Cell:
     def __init__(self, x, y, size):
-        self.status = random.choice([0]*20 + [1]*20)
+        self.status = 0
         self.newStatus = None
         self.x = x
         self.y = y
@@ -28,7 +27,7 @@ class Cell:
 
     def getColor(self):
         if self.status:
-            return (100, 100, 220)
+            return (80, 200, 80)
         return (15, 15, 15)
 
     def changeStatus(self):
@@ -46,6 +45,8 @@ class Main:
         # Declare important variables for the simulation
         self.clock = pygame.time.Clock()
         self.gridActivated = True
+        self.drawMode = True
+        self.startSimulation = False
 
         # Create the grid
         self.createGrid()
@@ -141,6 +142,34 @@ class Main:
                     pygame.quit()
                     sys.exit()
 
+                # Start simulation if CTRL + S is pressed
+                if (event.key == pygame.K_s and
+                        mo & event.key == pygame.KMOD_LCTRL):
+                    self.startSimulation = True
+
+            # Do not check anythin below here if simulation is running
+            if self.startSimulation:
+                return
+
+            # Check if the mouse is pressed to draw
+            if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
+                    or event.type == pygame.MOUSEMOTION and event.buttons[0]):
+                pos = pygame.mouse.get_pos()
+                for row in self.grid:
+                    for cell in row:
+                        if (cell.x <= pos[0] and cell.x + cell.size >= pos[0]
+                                and cell.y <= pos[1]
+                                and cell.y + cell.size >= pos[1]):
+                            if self.drawMode:
+                                cell.newStatus = 1
+                            else:
+                                cell.newStatus = 0
+                            cell.changeStatus()
+
+            # Check if middle mouse button is pressed to toggle draw mode
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 2:
+                self.drawMode = not self.drawMode
+
     def update(self):
         for i, row in enumerate(self.grid):
             for j, cell in enumerate(row):
@@ -181,12 +210,13 @@ class Main:
             self.eventHandler()
 
             # Call the update & draw methods
-            self.update()
+            if self.startSimulation:
+                self.update()
             self.draw()
 
             # Update the screen
             pygame.display.flip()
-            self.clock.tick(60)
+            self.clock.tick(20)
 
 
 if __name__ == '__main__':
