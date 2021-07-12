@@ -46,7 +46,6 @@ class Main:
         self.clock = pygame.time.Clock()
         self.gridActivated = True
         self.running = True
-        self.drawMode = True
         self.startSimulation = False
 
         # Create the grid
@@ -124,6 +123,19 @@ class Main:
                 return 1
             return 0
 
+    def drawCells(self, drawMode):
+        pos = pygame.mouse.get_pos()
+        for row in self.grid:
+            for cell in row:
+                if (cell.x <= pos[0] and cell.x + cell.size >= pos[0]
+                        and cell.y <= pos[1]
+                        and cell.y + cell.size >= pos[1]):
+                    if drawMode:
+                        cell.newStatus = 1
+                    else:
+                        cell.newStatus = 0
+                    cell.changeStatus()
+
     def eventHandler(self):
         # Check all detected events
         for event in pygame.event.get():
@@ -157,24 +169,16 @@ class Main:
             if self.startSimulation:
                 return
 
-            # Check if the mouse is pressed to draw
+            # Check if the left mouse is pressed to draw
             if (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1
                     or event.type == pygame.MOUSEMOTION and event.buttons[0]):
-                pos = pygame.mouse.get_pos()
-                for row in self.grid:
-                    for cell in row:
-                        if (cell.x <= pos[0] and cell.x + cell.size >= pos[0]
-                                and cell.y <= pos[1]
-                                and cell.y + cell.size >= pos[1]):
-                            if self.drawMode:
-                                cell.newStatus = 1
-                            else:
-                                cell.newStatus = 0
-                            cell.changeStatus()
+                self.drawCells(1)
 
-            # Check if middle mouse button is pressed to toggle draw mode
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 2:
-                self.drawMode = not self.drawMode
+            # Check if the right mouse is pressed to erase
+            elif (event.type == pygame.MOUSEBUTTONDOWN and event.button == 3
+                    or event.type == pygame.MOUSEMOTION and event.buttons[2]):
+                print("right mouse")
+                self.drawCells(0)
 
     def update(self):
         for i, row in enumerate(self.grid):
@@ -227,7 +231,6 @@ class Main:
         # Reset the variables
         self.createGrid()
         self.running = True
-        self.drawMode = True
         self.startSimulation = False
         self.mainloop()
 
