@@ -12,9 +12,19 @@ class Cell:
         self.size = size
         self.color = self.getColor()
 
-    def draw(self, screen):
+    def draw(self, screen, gridActivated):
+        # Draw the actual cell
         pygame.draw.rect(
             screen, self.color, (self.x, self.y, self.size, self.size))
+
+        # Draw part of the grid outline
+        if gridActivated:
+            pygame.draw.line(
+                screen, (100, 100, 100), (self.x, self.y),
+                (self.x + self.size, self.y))
+            pygame.draw.line(
+                screen, (100, 100, 100), (self.x, self.y),
+                (self.x, self.y + self.size - 1))
 
     def getColor(self):
         if self.status:
@@ -33,8 +43,9 @@ class Main:
         pygame.display.set_caption("Conway's Game of Life")
         self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
-        # ! Whats that?
+        # Declare important variables for the simulation
         self.clock = pygame.time.Clock()
+        self.gridActivated = True
 
         # Create the grid
         self.createGrid()
@@ -44,7 +55,7 @@ class Main:
 
     def createGrid(self):
         # Calculate rows, and cols amount depending on the cell size
-        cellSize = 15
+        cellSize = 34
         info = pygame.display.Info()
         winX, winY = info.current_w, info.current_h
         rows, cols = int(winY / cellSize), int(winX / cellSize)
@@ -144,7 +155,23 @@ class Main:
         # Draw each cell in the grid
         for row in self.grid:
             for cell in row:
-                cell.draw(self.screen)
+                cell.draw(self.screen, self.gridActivated)
+
+        # Draw bottom line of the grid outline
+        if self.gridActivated:
+            cellSize = self.grid[0][0].size
+            xEnd = self.grid[-1][-1].x + cellSize
+            yEnd = self.grid[-1][-1].y + cellSize
+
+            xStart, yStart = self.grid[-1][0].x, self.grid[-1][0].y + cellSize
+            pygame.draw.line(
+                self.screen, (100, 100, 100), (xStart, yStart - 1), (xEnd, yEnd - 1)
+            )
+
+            xStart, yStart = self.grid[0][-1].x + cellSize, self.grid[0][-1].y
+            pygame.draw.line(
+                self.screen, (100, 100, 100), (xStart, yStart), (xEnd, yEnd - 1)
+            )
 
     def mainloop(self):
         while True:
