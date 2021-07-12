@@ -45,6 +45,7 @@ class Main:
         # Declare important variables for the simulation
         self.clock = pygame.time.Clock()
         self.gridActivated = True
+        self.running = True
         self.drawMode = True
         self.startSimulation = False
 
@@ -147,6 +148,11 @@ class Main:
                         mo & event.key == pygame.KMOD_LCTRL):
                     self.startSimulation = True
 
+                # Reset everything if CTRL + R is pressed
+                if (event.key == pygame.K_r and
+                        mo & event.key == pygame.KMOD_LCTRL):
+                    self.running = False
+
             # Do not check anythin below here if simulation is running
             if self.startSimulation:
                 return
@@ -205,7 +211,7 @@ class Main:
             )
 
     def mainloop(self):
-        while True:
+        while self.running:
             # Check for events
             self.eventHandler()
 
@@ -217,6 +223,13 @@ class Main:
             # Update the screen
             pygame.display.flip()
             self.clock.tick(20)
+
+        # Reset the variables
+        self.createGrid()
+        self.running = True
+        self.drawMode = True
+        self.startSimulation = False
+        self.mainloop()
 
 
 if __name__ == '__main__':
