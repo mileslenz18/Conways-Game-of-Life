@@ -1,4 +1,4 @@
-# Conways-Game-of-Life (my version)
+# Conways Game of Life
 
 ## Introduction & Requirements
 
@@ -16,7 +16,7 @@ __Warning:__ This number shouldn't be bigger than your screen size (because this
 
 ## Shortcuts & Usage
 
-When you initially start the file you will be in __draw mode__. This means you can draw your own starting grid layout and then start the game. The following short cuts can be used to navigate through the game:
+When you initially start the file you will be in __draw mode__. This means you can draw your own starting grid layout and then start the game. The following shortcuts can be used to navigate through the game:
 - Left mouse button: Change the cell state to 'alive' (only in draw mode).
 - Right mouse button: Change the cell state to 'dead' (only in draw mode).
 - CTRL + C: Exit the program at all times.
