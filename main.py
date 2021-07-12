@@ -1,5 +1,5 @@
-import random
 import sys
+import random
 import pygame
 
 
@@ -26,123 +26,139 @@ class Cell:
         self.color = self.getColor()
 
 
-def eventHandler():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.KEYDOWN:
-            mo = pygame.key.get_mods()
-            if event.key == pygame.K_c and mo & event.key == pygame.KMOD_LCTRL:
+class Main:
+    def __init__(self):
+        # Initialize the window
+        pygame.init()
+        pygame.display.set_caption("Conway's Game of Life")
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+        # ! Whats that?
+        self.clock = pygame.time.Clock()
+
+        # Create the grid
+        self.createGrid()
+
+        # Call the main game loop
+        self.mainloop()
+
+    def createGrid(self):
+        # Calculate rows, and cols amount depending on the cell size
+        cellSize = 15
+        info = pygame.display.Info()
+        winX, winY = info.current_w, info.current_h
+        rows, cols = int(winY / cellSize), int(winX / cellSize)
+
+        # Calculate the margin to center the grid
+        marginY = (winY - rows*cellSize) / 2
+        marginX = (winX - cols*cellSize) / 2
+
+        # Create the cell instances and save the in the grid
+        self.grid = []
+        i, j = marginX, marginY
+        for row in range(rows):
+            row = []
+            for _ in range(cols):
+                row.append(Cell(i, j, cellSize))
+                i += cellSize
+            self.grid.append(row)
+            i = marginX
+            j += cellSize
+
+    def checkNeighbours(self, grid, i, j, status):
+        # Get a list of all the neighbours
+        if i == 0:
+            if j == 0:
+                neighbours = [(i, j+1), (i+1, j), (i+1, j+1)]
+            elif j == len(grid[0]) - 1:
+                neighbours = [(i, j-1), (i+1, j), (i+1, j-1)]
+            else:
+                neighbours = [
+                    (i, j-1), (i, j+1), (i+1, j), (i+1, j+1), (i+1, j-1)]
+        elif i == len(grid) - 1:
+            if j == 0:
+                neighbours = [(i, j+1), (i-1, j), (i-1, j+1)]
+            elif j == len(grid[0]) - 1:
+                neighbours = [(i, j-1), (i-1, j), (i-1, j-1)]
+            else:
+                neighbours = [
+                    (i, j-1), (i, j+1), (i-1, j), (i-1, j+1), (i-1, j-1)]
+        else:
+            if j == 0:
+                neighbours = [
+                    (i+1, j), (i-1, j), (i, j+1), (i+1, j+1), (i-1, j+1)]
+            elif j == len(grid[0]) - 1:
+                neighbours = [
+                    (i+1, j), (i-1, j), (i, j-1), (i+1, j-1), (i-1, j-1)]
+            else:
+                neighbours = [
+                    (i+1, j), (i-1, j), (i, j+1), (i, j-1),
+                    (i+1, j+1), (i-1, j+1), (i+1, j-1), (i-1, j-1)]
+
+        # Count the neighbours with an alive status
+        aliveCells = 0
+        for i, j in neighbours:
+            if grid[i][j].status:
+                aliveCells += 1
+
+        # Return 1 or 0 depending on the amount of alive cells
+        if status:
+            if aliveCells == 2 or aliveCells == 3:
+                return 1
+            return 0
+        else:
+            if aliveCells == 3:
+                return 1
+            return 0
+
+    def eventHandler(self):
+        # Check all detected events
+        for event in pygame.event.get():
+
+            # If the 'x' button is pressed
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+            # If any key is pressed
+            if event.type == pygame.KEYDOWN:
+                mo = pygame.key.get_mods()
 
-def draw(screen, grid):
-    # Draw all the cells
-    for row in grid:
-        for cell in row:
-            cell.draw(screen)
+                # Close the game if CTRL + C is pressed
+                if (event.key == pygame.K_c and
+                        mo & event.key == pygame.KMOD_LCTRL):
+                    pygame.quit()
+                    sys.exit()
 
+    def update(self):
+        for i, row in enumerate(self.grid):
+            for j, cell in enumerate(row):
+                status = self.checkNeighbours(self.grid, i, j, cell.status)
+                cell.newStatus = status
 
-def update(grid):
-    for i, row in enumerate(grid):
-        for j, cell in enumerate(row):
-            status = checkNeighbours(grid, i, j, cell.status)
-            cell.newStatus = status
+        for i, row in enumerate(self.grid):
+            for j, cell in enumerate(row):
+                cell.changeStatus()
 
-    for i, row in enumerate(grid):
-        for j, cell in enumerate(row):
-            cell.changeStatus()
+    def draw(self):
+        # Draw each cell in the grid
+        for row in self.grid:
+            for cell in row:
+                cell.draw(self.screen)
 
-    return grid
+    def mainloop(self):
+        while True:
+            # Check for events
+            self.eventHandler()
 
+            # Call the update & draw methods
+            self.update()
+            self.draw()
 
-def checkNeighbours(grid, i, j, status):
-    aliveCells = 0
-
-    if i == 0:
-        if j == 0:
-            neighbours = [(i, j+1), (i+1, j), (i+1, j+1)]
-        elif j == len(grid[0]) - 1:
-            neighbours = [(i, j-1), (i+1, j), (i+1, j-1)]
-        else:
-            neighbours = [(i, j-1), (i, j+1), (i+1, j), (i+1, j+1), (i+1, j-1)]
-    elif i == len(grid) - 1:
-        if j == 0:
-            neighbours = [(i, j+1), (i-1, j), (i-1, j+1)]
-        elif j == len(grid[0]) - 1:
-            neighbours = [(i, j-1), (i-1, j), (i-1, j-1)]
-        else:
-            neighbours = [(i, j-1), (i, j+1), (i-1, j), (i-1, j+1), (i-1, j-1)]
-    else:
-        if j == 0:
-            neighbours = [(i+1, j), (i-1, j), (i, j+1), (i+1, j+1), (i-1, j+1)]
-        elif j == len(grid[0]) - 1:
-            neighbours = [(i+1, j), (i-1, j), (i, j-1), (i+1, j-1), (i-1, j-1)]
-        else:
-            neighbours = [
-                (i+1, j), (i-1, j), (i, j+1), (i, j-1),
-                (i+1, j+1), (i-1, j+1), (i+1, j-1), (i-1, j-1)
-            ]
-
-    for i, j in neighbours:
-        if grid[i][j].status:
-            aliveCells += 1
-
-    if status:
-        if aliveCells == 2 or aliveCells == 3:
-            return 1
-        return 0
-    else:
-        if aliveCells == 3:
-            return 1
-        return 0
-
-
-def calculateCellAmount(winX, winY, cellSize):
-    rows = int(winY / cellSize)
-    cols = int(winX / cellSize)
-    return (rows, cols)
-
-
-def main():
-    # Initialize the window
-    pygame.init()
-    pygame.display.set_caption('Conways Game of Life')
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    clock = pygame.time.Clock()
-
-    # Create some important variables
-    cellSize = 15
-    info = pygame.display.Info()
-    winX, winY = info.current_w, info.current_h
-    rows, cols = calculateCellAmount(winX, winY, cellSize)
-    marginY = (winY - rows*cellSize) / 2
-    marginX = (winX - cols*cellSize) / 2
-
-    # Create the grid and the cells
-    grid = []
-    i, j = marginX, marginY
-    for row in range(rows):
-        row = []
-        for col in range(cols):
-            row.append(Cell(i, j, cellSize))
-            i += cellSize
-        grid.append(row)
-        i = marginX
-        j += cellSize
-
-    # Main window loop
-    while True:
-        eventHandler()
-        draw(screen, grid)
-
-        grid = update(grid)
-
-        pygame.display.flip()
-        clock.tick(60)
+            # Update the screen
+            pygame.display.flip()
+            self.clock.tick(60)
 
 
 if __name__ == '__main__':
-    main()
+    Main()
