@@ -8,10 +8,12 @@ This is my implementation of Conway's game of life using Python and the Pygame m
 
 In the _config.json_ file, you can choose some basic settings to modify the game. Here is a quick explanation for each entry:
 - cell-size (integer): Changes the cell-size.
+
 __Warning:__ This number shouldn't be bigger than your screen size (because this will raise an error) or too low (due to possible lags).
 - cell-color-alive (rgb-values): The color of a cell when it is alive.
 - cell-color-dead (rgb-values): The color of a cell when it is dead.
 - bg-color (rgb-values): The color of the background behind the grid.
+
 (Depending on the grid size, it is possible that you won't be able to see this color)
 
 ## Shortcuts & Usage
