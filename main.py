@@ -39,6 +39,7 @@ class Main:
     def __init__(self):
         # Initialize the window
         pygame.init()
+        pygame.font.init()
         pygame.display.set_caption("Conway's Game of Life")
         self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
@@ -47,6 +48,7 @@ class Main:
         self.gridActivated = True
         self.running = True
         self.startSimulation = False
+        self.appState = "introduction"
 
         # Create the grid
         self.createGrid()
@@ -165,8 +167,21 @@ class Main:
                         mo & event.key == pygame.KMOD_LCTRL):
                     self.running = False
 
+            # Skip the introduction when button is pressed
+            if (self.appState == "introduction" and
+                    event.type == pygame.MOUSEBUTTONDOWN and
+                    event.button == 1):
+                pos = pygame.mouse.get_pos()
+                if (self.introBtnX <= pos[0] and self.introBtnX +
+                        self.introBtnSize[0] >= pos[0] and
+                        self.introBtnY <= pos[1] and
+                        self.introBtnY + self.introBtnSize[1] >= pos[1]):
+                    self.appState = "simulation"
+                    return
+
             # Do not check anythin below here if simulation is running
-            if self.startSimulation:
+            # or the intro is displayed
+            if self.startSimulation or self.appState == "introduction":
                 return
 
             # Check if the left mouse is pressed to draw
@@ -214,15 +229,46 @@ class Main:
                 (xEnd - 1, yEnd - 1)
             )
 
+    def drawIntroduction(self):
+        center = pygame.display.Info().current_w / 2
+
+        # Create different fonts
+        h1 = pygame.font.SysFont('Lato', 50)
+        h2 = pygame.font.SysFont('Lato', 32)
+
+        # Create the actual text
+        title = h1.render("Conway's Game of Life", False, (220, 220, 220))
+        text1Str = "Press the left mouse button to draw."
+        text2Str = "Press the right mouse button to erase."
+        text1 = h2.render(text1Str, False, (220, 220, 220))
+        text2 = h2.render(text2Str, False, (220, 220, 220))
+
+        # Render the texts
+        self.screen.blit(title, (center - title.get_width()/2, 220))
+        self.screen.blit(text1, (center - title.get_width()/2, 420))
+        self.screen.blit(text2, (center - title.get_width()/2, 500))
+
+        # Draw a button to continue
+        self.introBtnX, self.introBtnY = center - 100, 600
+        self.introBtnSize = (200, 80)
+        pygame.draw.rect(
+            self.screen, (200, 0, 0),
+            (self.introBtnX, self.introBtnY,
+             self.introBtnSize[0], self.introBtnSize[1])
+        )
+
     def mainloop(self):
         while self.running:
             # Check for events
             self.eventHandler()
 
             # Call the update & draw methods
-            if self.startSimulation:
-                self.update()
-            self.draw()
+            if self.appState == "simulation":
+                if self.startSimulation:
+                    self.update()
+                self.draw()
+            else:
+                self.drawIntroduction()
 
             # Update the screen
             pygame.display.flip()
