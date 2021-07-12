@@ -192,18 +192,31 @@ class Main:
             # Check if the right mouse is pressed to erase
             elif (event.type == pygame.MOUSEBUTTONDOWN and event.button == 3
                     or event.type == pygame.MOUSEMOTION and event.buttons[2]):
-                print("right mouse")
                 self.drawCells(0)
 
     def update(self):
+        # Check all the cells and save their new status
         for i, row in enumerate(self.grid):
             for j, cell in enumerate(row):
                 status = self.checkNeighbours(self.grid, i, j, cell.status)
                 cell.newStatus = status
 
+        # Apply the new status to all the cells
         for i, row in enumerate(self.grid):
             for j, cell in enumerate(row):
                 cell.changeStatus()
+
+        # Reset the simulation if all cells are dead
+        cellAlive = False
+        for row in self.grid:
+            for cell in row:
+                if cell.status:
+                    cellAlive = True
+                    break
+            if cellAlive:
+                break
+        if not cellAlive:
+            self.running = False
 
     def draw(self):
         # Draw each cell in the grid
@@ -231,6 +244,9 @@ class Main:
 
     def drawIntroduction(self):
         center = pygame.display.Info().current_w / 2
+
+        # Draw the background color
+        self.screen.fill((20, 20, 20))
 
         # Create different fonts
         h1 = pygame.font.SysFont('Lato', 50)
