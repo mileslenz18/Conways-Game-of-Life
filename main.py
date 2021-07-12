@@ -1,14 +1,17 @@
 import sys
+import json
 import pygame
 
 
 class Cell:
-    def __init__(self, x, y, size):
+    def __init__(self, x, y, size, colorAlive, colorDead):
         self.status = 0
         self.newStatus = None
         self.x = x
         self.y = y
         self.size = size
+        self.colorAlive = colorAlive
+        self.colorDead = colorDead
         self.color = self.getColor()
 
     def draw(self, screen, gridActivated):
@@ -27,8 +30,8 @@ class Cell:
 
     def getColor(self):
         if self.status:
-            return (80, 200, 80)
-        return (15, 15, 15)
+            return self.colorAlive
+        return self.colorDead
 
     def changeStatus(self):
         self.status = self.newStatus
@@ -49,6 +52,10 @@ class Main:
         self.running = True
         self.startSimulation = False
 
+        # Get the settings from the config.json file
+        with open('config.json') as jsonFile:
+            self.config = json.load(jsonFile)
+
         # Create the grid
         self.createGrid()
 
@@ -57,7 +64,7 @@ class Main:
 
     def createGrid(self):
         # Calculate rows, and cols amount depending on the cell size
-        cellSize = 43
+        cellSize = int(self.config['cell-size'])
         info = pygame.display.Info()
         winX, winY = info.current_w, info.current_h
         rows, cols = int(winY / cellSize), int(winX / cellSize)
@@ -66,13 +73,18 @@ class Main:
         marginY = (winY - rows*cellSize) / 2
         marginX = (winX - cols*cellSize) / 2
 
+        # Get the colors from the .json file
+        colorAlive = tuple(
+            map(int, self.config['cell-color-alive'].split(', ')))
+        colorDead = tuple(map(int, self.config['cell-color-dead'].split(', ')))
+
         # Create the cell instances and save the in the grid
         self.grid = []
         i, j = marginX, marginY
         for row in range(rows):
             row = []
             for _ in range(cols):
-                row.append(Cell(i, j, cellSize))
+                row.append(Cell(i, j, cellSize, colorAlive, colorDead))
                 i += cellSize
             self.grid.append(row)
             i = marginX
@@ -205,6 +217,10 @@ class Main:
             self.running = False
 
     def draw(self):
+        # Draw the background
+        bgColor = tuple(map(int, self.config['bg-color'].split(', ')))
+        self.screen.fill(bgColor)
+
         # Draw each cell in the grid
         for row in self.grid:
             for cell in row:
