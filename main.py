@@ -46,15 +46,15 @@ class Main:
         pygame.display.set_caption("Conway's Game of Life")
         self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
-        # Declare important variables for the simulation
-        self.clock = pygame.time.Clock()
-        self.gridActivated = True
-        self.running = True
-        self.startSimulation = False
-
         # Get the settings from the config.json file
         with open('config.json') as jsonFile:
             self.config = json.load(jsonFile)
+
+        # Declare important variables for the simulation
+        self.clock = pygame.time.Clock()
+        self.gridActivated = bool(self.config['display-grid'])
+        self.running = True
+        self.startSimulation = False
 
         # Create the grid
         self.createGrid()
